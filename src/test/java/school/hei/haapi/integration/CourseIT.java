@@ -12,7 +12,6 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -33,6 +32,10 @@ import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -63,7 +66,7 @@ public class CourseIT {
     course.setMainTeacher(teacher1());
     return course;
   }
-
+  
   public static UpdateStudentCourse studentCourse1() {
     UpdateStudentCourse updateStudentCourse = new UpdateStudentCourse();
     updateStudentCourse.setCourseId("course1_id");
@@ -158,6 +161,41 @@ public class CourseIT {
 
   @Order(1)
   @Test
+  void manager_read_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(apiClient);
+
+    List<Course> actual = api.getCourses(1, 15);
+
+    assertEquals(5, actual.size());
+    assertTrue(actual.containsAll(List.of(course1(), course2())));
+  }
+  @Order(1)
+  @Test
+  void teacher_read_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(apiClient);
+
+    List<Course> actual = api.getCourses(1, 15);
+
+    assertEquals(5, actual.size());
+    assertTrue(actual.containsAll(List.of(course1(), course2())));
+  }
+  
+  @Order(1)
+  @Test
+  void student_read_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(apiClient);
+
+    List<Course> actual = api.getCourses(1, 15);
+
+    assertEquals(5, actual.size());
+    assertTrue(actual.containsAll(List.of(course1(), course2())));
+  }
+  
+  @Order(2)
+  @Test
   void manager_write_create_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(apiClient);
@@ -171,7 +209,7 @@ public class CourseIT {
     ));
   }
 
-  @Order(2)
+  @Order(3)
   @Test
   void manager_write_update_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
@@ -215,7 +253,6 @@ public class CourseIT {
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.crupdateCourses(List.of(toCreateSuccess())));
   }
-
 
   @Test
   void manager_update_student_course_ok() throws ApiException {

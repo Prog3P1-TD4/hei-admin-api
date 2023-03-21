@@ -11,13 +11,23 @@ import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.UserService;
 
 import java.util.Objects;
+
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.validator.CourseValidator;
+import school.hei.haapi.service.UserService;
+
 @Component
 @AllArgsConstructor
 public class CourseMapper {
   private final UserMapper userMapper;
   private final UserService userService;
   private final CourseValidator validator;
-
   private CourseService courseService;
 
   public Course toRest(school.hei.haapi.model.Course domain) {
@@ -69,5 +79,5 @@ public class CourseMapper {
             .main_teacher(domain.getMain_teacher())
             .status(restCourse.getStatus())
             .build();
-  }
+   }
 }
