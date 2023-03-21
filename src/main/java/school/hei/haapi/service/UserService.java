@@ -10,10 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
+import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.mapper.StudentCourseMapper;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UserValidator;
+import school.hei.haapi.repository.StudentCourseRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 
@@ -29,6 +34,9 @@ public class UserService {
   private final UserValidator userValidator;
 
   private final UserManagerDao userManagerDao;
+  private final StudentCourseRepository studentCourseRepository;
+  private final StudentCourseMapper studentCourseMapper;
+  private final CourseMapper courseMapper;
 
   public User getById(String userId) {
     return userRepository.getById(userId);
@@ -68,5 +76,10 @@ public class UserService {
         Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
            role, ref, firstName, lastName, pageable);
+  }
+  public List<Course> getStudentCourse(String studentId, CourseStatus status){
+    return studentCourseRepository.getByStudentAndStatus(studentId, status).stream()
+        .map(studentCourseMapper::toRest)
+        .collect(toUnmodifiableList());
   }
 }

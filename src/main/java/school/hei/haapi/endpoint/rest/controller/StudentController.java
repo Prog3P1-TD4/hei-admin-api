@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -38,6 +40,14 @@ public class StudentController {
         ).stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/students/{student_id}/courses")
+  public List<Course> getStudentCourses(
+      @RequestParam(required = false, defaultValue = "LINKED") CourseStatus courseStatus,
+      @PathVariable String student_id
+      ){
+    return userService.getStudentCourse(student_id, courseStatus);
   }
 
   @PutMapping("/students")
